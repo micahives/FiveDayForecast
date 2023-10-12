@@ -1,24 +1,30 @@
-const apiKey = 'd3d82e6a2d8834ff83e6cab9c08ac5c2';
 var weatherContainer = document.getElementById('weather-container');
 var searchButton = document.getElementById('search-button');
 
-function getApi() {
-    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}`)
-        .then(response => response.json())
-        .then(data => {
-            for (var i =0; i < data.length; i++) {
-                const weatherInfo = document.getElementById('weather-info');
-                const firstForecast = data.list[0];
-                const temperature = firstForecast.main.temp;
-                const description = firstForecast.weather[0].description;
-                const html = `<p>Temperature: ${temperature}°C</p><p>Description: ${description}</p>`;
-                weatherInfo.innerHTML = html;
-                console.log("success!")
-            }
+function getWeather() {
+  console.log("Hello!");
+  const apiKey = 'd3d82e6a2d8834ff83e6cab9c08ac5c2';
+  const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?appid=${apiKey}`;
+  fetch(apiUrl)
+    .then(function (response) {
+      return response.json();
     })
-        .catch(error => {
-            console.error('Error fetching weather data:', error);
-    });
-}
+    .then(function (data) {
+      console.log(data);
+      // for (var i = 0; i < data.length; i++) {
+      //   //Creating a h3 element and a p element
+      //   var userName = document.createElement('h3');
+      //   var userUrl = document.createElement('p');
 
-searchButton.addEventListener('click', getApi);
+      //   //Setting the text of the h3 element and p element.
+      //   userName.textContent = data[i].login;
+      //   userUrl.textContent = data[i].url;
+
+      //   //Appending the dynamically generated html to the div associated with the id="users"
+      //   //Append will attach the element as the bottom most child.
+      //   usersContainer.append(userName);
+      //   usersContainer.append(userUrl);
+      });
+};
+
+searchButton.addEventListener('click', getWeather);
