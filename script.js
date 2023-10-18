@@ -44,9 +44,34 @@ function renderForecastWeather(weather) {
   for (var i = 0; i < 5; i ++) {
     var forecastContainer = document.querySelector("#forecast-container");
     var weatherDiv = document.createElement('div');
-    var city = document.createElement("h2");
-    city.textContent = weather.list[i * 8].main.temp;
-    weatherDiv.append(city);
+    weatherDiv.setAttribute('class', 'col-4 border border-black rounded m-5 p-3 fixed-size-div');
+
+    // Get the date
+    var date = document.createElement('p');
+    // Data is listed every 3 hours, get every '8th' index ie. 0, 8, 16, 24... to get new day weather
+    var newDate = new Date(weather.list[i * 8].dt * 1000).toLocaleDateString("en-us");
+    date.textContent = newDate;
+
+    // Get the icon
+    var icon = document.createElement("img");
+    var iconObj = weather.list[i * 8].weather[0].icon;
+    var iconURL = `https://openweathermap.org/img/wn/${iconObj}@2x.png`;
+    icon.setAttribute('src', iconURL);
+
+    // Get the temp
+    var temp = document.createElement('p');
+    temp.textContent = "Temp: " + weather.list[i * 8].main.temp + " °F";
+
+    // Get the humidity
+    var relHumid = document.createElement('p');
+    relHumid.textContent = "Humidity: " + weather.list[i * 8].main.humidity + "%";
+
+    // Get the wind
+    var wind = document.createElement('p');
+    wind.textContent = "Wind: " + weather.list[i * 8].wind.speed + " mph";
+
+
+    weatherDiv.append(date, icon, temp, relHumid, wind);
     forecastContainer.append(weatherDiv);
   }
 }
