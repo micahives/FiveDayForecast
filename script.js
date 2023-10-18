@@ -1,6 +1,10 @@
+// Stores items from renderSearchHistory()
+var searchHistoryItems = [];
+
 // Renders the current weather data as a card
 function renderCurrentWeather(weather) {
   var weatherContainer = document.querySelector("#weather-container");
+  weatherContainer.setAttribute('class', "col-6 border border-black rounded");
   console.log(weather);
 
   // Create h2 for city name
@@ -36,6 +40,8 @@ function renderCurrentWeather(weather) {
   wind.textContent = "Wind: " + weather.wind.speed + " mph";
   weatherContainer.append(wind);
 
+  // Sends current weather to local storage
+  localStorage.setItem('currentWeather', JSON.stringify(weather));
 }
 
 // Renders the forecast data as cards 
@@ -72,6 +78,9 @@ function renderForecastWeather(weather) {
 
     weatherDiv.append(date, icon, temp, relHumid, wind);
     forecastContainer.append(weatherDiv);
+
+    // Sends forecast weather to local storage
+    localStorage.setItem('forecastWeather', JSON.stringify(weather));
   }
 }
 
@@ -102,6 +111,7 @@ function fetchCurrentWeather(query) {
     .then(function (data) {
       renderCurrentWeather(data);
       fetchForecastWeather(query);
+      renderSearchHistory();
     });
 
 }
@@ -124,6 +134,50 @@ function clearForecastContainer() {
     }
 }
 
+// Sets searched city to local storage and adds city name to searched list as a button that will render...
+// the city's weather + five day forecast when clicked
+function renderSearchHistory() {
+  var searchHistory = document.getElementById('searched-list');
+
+  var currentWeather = JSON.parse(localStorage.getItem('currentWeather'));
+  var forecastWeather = JSON.parse(localStorage.getItem('forecastWeather'));
+
+  if (currentWeather && forecastWeather) {
+
+    var searchHistoryItem = {
+      city: currentWeather.name,
+      weather: currentWeather,
+      forecast: forecastWeather
+    };
+
+    // Checks if a city is in the search history to avoid adding a city more than once
+    var isCityInHistory = searchHistoryItems.some(function(item) {
+      return item.city === searchHistoryItem.city;
+    });
+
+    if (!isCityInHistory) {
+      searchHistoryItems.push(searchHistoryItem);
+
+      var listItem = document.createElement('li');
+      listItem.textContent = searchHistoryItem.city;
+      listItem.setAttribute('class', 'btn btn-primary mt-2');
+      // Button styling for list items
+      // listItem.style.cursor = 'pointer';
+      // listItem.style.padding = '5px';
+      // listItem.style.border = '1px solid #ccc';
+      // listItem.style.backgroundColor = '#f0f0f0';
+
+      listItem.addEventListener('click', function() {
+          clearWeatherContainer();
+          clearForecastContainer();
+          renderCurrentWeather(searchHistoryItem.weather);
+          renderForecastWeather(searchHistoryItem.forecast);
+    });
+      searchHistory.appendChild(listItem);
+    }
+  }
+}
+
 // Event handler for search form
 document.getElementById('search-form').addEventListener('submit', function(event) {
   event.preventDefault();
@@ -134,6 +188,7 @@ document.getElementById('search-form').addEventListener('submit', function(event
       clearWeatherContainer();
       clearForecastContainer();
       fetchCurrentWeather(cityName);
+      renderSearchHistory();
   } else {
       alert('Please enter a city name');
   }
