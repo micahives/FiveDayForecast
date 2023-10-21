@@ -40,8 +40,8 @@ function renderCurrentWeather(weather) {
   wind.textContent = "Wind: " + weather.wind.speed + " mph";
   weatherContainer.append(wind);
 
-  // Sends current weather to local storage
-  localStorage.setItem('currentWeather', JSON.stringify(weather));
+  const weatherJSON = JSON.stringify(weather);
+  localStorage.setItem(`weatherData_${weather.name}`, weatherJSON);
 }
 
 // Renders the forecast data as cards 
@@ -78,10 +78,9 @@ function renderForecastWeather(weather) {
 
     weatherDiv.append(date, icon, temp, relHumid, wind);
     forecastContainer.append(weatherDiv);
-
-    // Sends forecast weather to local storage
-    localStorage.setItem('forecastWeather', JSON.stringify(weather));
   }
+  const forecastJSON = JSON.stringify(weather);
+  localStorage.setItem(`forecastData_${weather.city.name}`, forecastJSON);
 }
 
 // Fetches five day weather forecast
@@ -97,6 +96,7 @@ function fetchForecastWeather(query) {
       renderForecastWeather(data);
     });
 
+
 }
 
 // Fetches current weather data
@@ -110,8 +110,6 @@ function fetchCurrentWeather(query) {
     })
     .then(function (data) {
       renderCurrentWeather(data);
-      fetchForecastWeather(query);
-      renderSearchHistory();
     });
 
 }
@@ -150,6 +148,8 @@ function renderSearchHistory() {
       forecast: forecastWeather
     };
 
+    var cityLocalStorageKey = 'city_' + currentWeather.name;
+
     // Checks if a city is in the search history to avoid adding a city more than once
     var isCityInHistory = searchHistoryItems.some(function(item) {
       return item.city === searchHistoryItem.city;
@@ -161,15 +161,11 @@ function renderSearchHistory() {
       var listItem = document.createElement('li');
       listItem.textContent = searchHistoryItem.city;
       listItem.setAttribute('class', 'btn btn-primary mt-2');
-      // Button styling for list items
-      // listItem.style.cursor = 'pointer';
-      // listItem.style.padding = '5px';
-      // listItem.style.border = '1px solid #ccc';
-      // listItem.style.backgroundColor = '#f0f0f0';
 
       listItem.addEventListener('click', function() {
           clearWeatherContainer();
           clearForecastContainer();
+
           renderCurrentWeather(searchHistoryItem.weather);
           renderForecastWeather(searchHistoryItem.forecast);
     });
@@ -178,7 +174,7 @@ function renderSearchHistory() {
   }
 }
 
-// Event handler for search form
+// Event handler for search form for submit button/search button
 document.getElementById('search-form').addEventListener('submit', function(event) {
   event.preventDefault();
   
@@ -188,6 +184,7 @@ document.getElementById('search-form').addEventListener('submit', function(event
       clearWeatherContainer();
       clearForecastContainer();
       fetchCurrentWeather(cityName);
+      fetchForecastWeather(cityName);
       renderSearchHistory();
   } else {
       alert('Please enter a city name');
